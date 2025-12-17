@@ -1,0 +1,28 @@
+name: my-template-bot
+
+services:
+  web:
+    container_name: my-template-bot-web
+
+    build:
+      # Specifies the directory containing the Dockerfile
+      context: .
+
+    env_file:
+      - .env
+      
+    volumes:
+      # Map your local 'app' directory to the container's 'myproject' directory
+      - ./app:/myproject/app
+      - ./data:/myproject/data
+
+    environment:
+      # To ensure reliable reloading across Docker volumes
+      WATCHFILES_FORCE_POLLING: "true"
+
+    ports:
+      - "8000:8000"
+
+    # The command is already defined in the Dockerfile, but can be overridden here if needed
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    

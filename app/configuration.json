@@ -1,0 +1,8 @@
+{
+  "cronjob": {
+    "refresh_tickers": [
+      "BTC-USD",
+      "ETH-USD"
+    ]
+  }
+}
