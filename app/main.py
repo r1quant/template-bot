@@ -5,10 +5,11 @@ from contextlib import asynccontextmanager
 from datetime import date, timedelta
 
 import aiofiles
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import PlainTextResponse
 
-from app.cronjob import cron_initialize, cron_shutdown
+from app.cronjob import cron_d1, cron_h1, cron_initialize, cron_shutdown
 from app.database import create_db_and_tables, db
 from app.lib.utils import IntervalHelper, Notifier
 from app.settings import settings
@@ -130,8 +131,11 @@ async def send_discord(msg: str):
 @app.get("/ohlc/{ticker}/{interval}")
 def ohlc_all_by_ticker(ticker: str, interval: str):
     interval = IntervalHelper.normalize(interval)
-    records = db.ohlc.get_all(ticker=ticker, interval=interval)
-    records = sorted(records, key=lambda row: row.date, reverse=True)
+    records = db.ohlc.get_all(ticker=ticker, interval=interval, return_dataframe=True)
+
+    if isinstance(records, pd.DataFrame):
+        return records.to_dict(orient="records")
+
     return records
 
 
@@ -139,6 +143,10 @@ def ohlc_all_by_ticker(ticker: str, interval: str):
 def ohlc_refresh(ticker: str, interval: str):
     interval = IntervalHelper.normalize(interval)
     records = refresh_ticker_by_interval(ticker=ticker, interval=interval)
+
+    if isinstance(records, pd.DataFrame):
+        return records.to_dict(orient="records")
+
     return records
 
 
