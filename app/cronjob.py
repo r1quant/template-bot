@@ -42,16 +42,19 @@ async def cron_10minutes():
 # ---------------------------------------------------------
 
 
-async def cron_1hour():
-    logger.info("executing cronjob: 1hour")
+async def cron_h1():
+    logger.info("executing cronjob: H1")
     logger.info(f"tickers: {config.cronjob.refresh_tickers}")
     now_utc = datetime.now(timezone.utc)
     db.settings.set("cronjob_h1_updated_at", now_utc.strftime("%Y-%m-%d %H:%M:%S"))
 
+    msg = "----HOURLY---"
     for ticker in config.cronjob.refresh_tickers:
-        refresh_ticker_by_interval(ticker=ticker, interval="1h")
+        result = refresh_ticker_by_interval(ticker=ticker, interval="1h", return_dataframe=True)
+        last_candle = result.iloc[-1]
+        msg += f"\n{ticker.replace('-USD', '')}: ${float(last_candle['close']):.2f}"
 
-    asyncio.create_task(Notifier.send_telegram_message_async("executed cronjob: 1hour"))
+    asyncio.create_task(Notifier.send_telegram_message_async(msg))
 
 
 # ---------------------------------------------------------
@@ -59,15 +62,18 @@ async def cron_1hour():
 # ---------------------------------------------------------
 
 
-async def cron_1day():
-    logger.info("executing cronjob: 1day")
+async def cron_d1():
+    logger.info("executing cronjob: D1")
     now_utc = datetime.now(timezone.utc)
     db.settings.set("cronjob_d1_updated_at", now_utc.strftime("%Y-%m-%d %H:%M:%S"))
 
+    msg = "----DAILY---"
     for ticker in config.cronjob.refresh_tickers:
-        refresh_ticker_by_interval(ticker=ticker, interval="1d")
+        result = refresh_ticker_by_interval(ticker=ticker, interval="1d")
+        last_candle = result.iloc[-1]
+        msg += f"\n{ticker.replace('-USD', '')}: ${float(last_candle[-1]['close']):.2f}"
 
-    asyncio.create_task(Notifier.send_telegram_message_async("executed cronjob: 1day"))
+    asyncio.create_task(Notifier.send_telegram_message_async(msg))
 
 
 # ---------------------------------------------------------
@@ -88,10 +94,10 @@ def cron_initialize():
         # scheduler.add_job(cron_10minutes, CronTrigger(day="*", hour="*", minute="*/10", second="5", timezone="UTC"))
 
         # Every 1 hours (with 30s delay)
-        scheduler.add_job(cron_1hour, CronTrigger(day="*", hour="*/1", minute="0", second="20", timezone="UTC"))
+        scheduler.add_job(cron_h1, CronTrigger(day="*", hour="*/1", minute="0", second="20", timezone="UTC"))
 
         # Every 1 day (with 1min delay)
-        scheduler.add_job(cron_1day, CronTrigger(day="*", hour="0", minute="1", timezone="UTC"))
+        scheduler.add_job(cron_d1, CronTrigger(day="*", hour="0", minute="1", timezone="UTC"))
 
         scheduler.start()
     else:
