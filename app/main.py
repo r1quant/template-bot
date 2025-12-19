@@ -84,7 +84,7 @@ async def show_logs(lines: int = 1000, prev: int = 0):
     log_file_path = f"data/{settings.log_file.replace('.log', '')}.log"
 
     if prev > 0:
-        prev_date = (date.today() - timedelta(days=prev)).strftime("%d-%m-%Y")
+        prev_date = (date.today() - timedelta(days=prev)).strftime("%Y-%m-%d")
         log_file_path = f"{log_file_path}.{prev_date}"
 
     if not os.path.exists(log_file_path):
