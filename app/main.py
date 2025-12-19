@@ -105,6 +105,22 @@ async def show_logs(lines: int = 1000, prev: int = 0):
 
 
 # ---------------------------------------------------------
+# Routes: Cronjob
+# ---------------------------------------------------------
+
+
+@app.get("/cronjob/{interval}")
+async def cronjob_run(interval: str):
+    if interval == "h1":
+        await cron_h1()
+
+    if interval == "d1":
+        await cron_d1()
+
+    return {"interval": interval}
+
+
+# ---------------------------------------------------------
 # Routes: Notifications
 # ---------------------------------------------------------
 
