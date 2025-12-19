@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pandas as pd
 from sqlalchemy import UniqueConstraint, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlmodel import Field, Session, SQLModel, create_engine
@@ -77,7 +78,7 @@ class settings_methods:
 
 
 class ohlc_methods:
-    def get_all(ticker=None, interval=None):
+    def get_all(ticker=None, interval=None, return_dataframe=True):
         records = []
         with Session(engine) as session:
             if ticker:
@@ -88,6 +89,15 @@ class ohlc_methods:
                 stmt = select(OHLC)
 
             records = session.scalars(stmt).all()
+
+        if return_dataframe:
+            list_records = (row.model_dump() for row in records)
+            df = pd.DataFrame(list_records)
+            df = df.set_index("date")
+            df = df.sort_index()
+            df["date"] = df.index
+            return df
+
         return records
 
     def upsert(values):
