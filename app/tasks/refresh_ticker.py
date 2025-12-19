@@ -4,7 +4,7 @@ from app.database import db
 from app.lib.utils import IntervalHelper, Providers
 
 
-def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h"):
+def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h", return_dataframe=True):
     provider = "yahoo"
     interval = IntervalHelper.to_yahoo_format(interval)
 
@@ -43,6 +43,9 @@ def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h"):
             )
         db.ohlc.upsert(candles)
         records = candles
+        records = sorted(records, key=lambda row: row["date"], reverse=True)
 
-    records = sorted(records, key=lambda row: row["date"], reverse=True)
-    return records
+    if return_dataframe:
+        return ticker_data
+
+    return ticker_data
