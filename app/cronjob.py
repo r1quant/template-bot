@@ -105,4 +105,5 @@ def cron_initialize():
 
 
 def cron_shutdown():
-    scheduler.shutdown()
+    if settings.enabled_cron:
+        scheduler.shutdown()
