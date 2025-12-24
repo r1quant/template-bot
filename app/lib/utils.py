@@ -1,7 +1,7 @@
 import httpx
 import yfinance as yf
 
-from app.settings import logging, settings
+from app.settings import logger, settings
 
 # ---------------------------------------------------------
 # Interval Helper
@@ -98,14 +98,14 @@ class Notifier:
             return
 
         if settings.notifier_telegram_token and not settings.notifier_telegram_chat_id:
-            logging.warning("telegram_chat_id is empty")
+            logger.warning("telegram_chat_id is empty")
             return
 
         if not settings.notifier_telegram_chat_id:
             return
 
         if not message_text:
-            logging.warning("telegram: message is empty")
+            logger.warning("telegram: message is empty")
             return
 
         url = f"https://api.telegram.org/bot{settings.notifier_telegram_token}/sendMessage"
@@ -115,13 +115,13 @@ class Notifier:
             try:
                 response = await client.post(url, data=payload, timeout=10.0)
                 response.raise_for_status()
-                logging.info("telegram: message sent to chat")
+                logger.info("telegram: message sent to chat")
                 return "ok"
             except httpx.HTTPStatusError as e:
-                logging.warning(f"telegram: background task failed: {e.response.status_code} - {e.response.text}")
+                logger.warning(f"telegram: background task failed: {e.response.status_code} - {e.response.text}")
                 return "failed"
             except httpx.RequestError as e:
-                logging.warning(f"telegram: background task network error: {e}")
+                logger.warning(f"telegram: background task network error: {e}")
                 return "failed"
 
     async def send_discord_message_async(message_text: str):
@@ -135,7 +135,7 @@ class Notifier:
             return
 
         if not message_text:
-            logging.warning("discord: message is empty")
+            logger.warning("discord: message is empty")
             return
 
         url = f"{settings.notifier_discord_webhook_url}"
@@ -145,11 +145,11 @@ class Notifier:
             try:
                 response = await client.post(url, data=payload, timeout=10.0)
                 response.raise_for_status()
-                logging.info("discord: message sent to chat")
+                logger.info("discord: message sent to chat")
                 return "ok"
             except httpx.HTTPStatusError as e:
-                logging.warning(f"discrod: background task failed: {e.response.status_code} - {e.response.text}")
+                logger.warning(f"discrod: background task failed: {e.response.status_code} - {e.response.text}")
                 return "failed"
             except httpx.RequestError as e:
-                logging.warning(f"discord: background task network error: {e}")
+                logger.warning(f"discord: background task network error: {e}")
                 return "failed"
