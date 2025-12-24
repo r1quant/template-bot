@@ -1,5 +1,30 @@
-# flyctl launch added from .venv\.gitignore
-.venv\**\*
-fly.toml
-data\*
+# Python-generated files
+**/__pycache__
+**/*.py[oc]
+**/build
+**/dist
+**/wheels
+**/*.egg-info
+
+
+# Virtual environments
+**/.venv
+
+# Others
+**/.env*
+!**/.env-example
+**/__marimo__
+**/_bin
+**/*.log
+**/NOTES*.md
+**/fly.toml
+
+
+# flyctl launch added from .venv/.gitignore
+.venv/**/*
+data/**/*
+!data/**/.gitignore
+
+# others
 .vscode
+*.ipynb
