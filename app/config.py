@@ -2,7 +2,7 @@ import pathlib
 
 from pydantic import BaseModel, ValidationError
 
-from app.settings import logging
+from app.settings import logger
 
 # ---------------------------------------------------------
 # Define the configuration based to the JSON structure
@@ -28,13 +28,13 @@ def load_configuration(file_path: str) -> Config | None:
         config = Config.model_validate_json(json_string)
         return config
     except FileNotFoundError:
-        logging.error(f"Error: The file '{file_path}' was not found.")
+        logger.error(f"Error: The file '{file_path}' was not found.")
         return None
     except ValidationError:
-        logging.error(f"Error: Configuration data in '{file_path}' is invalid.")
+        logger.error(f"Error: Configuration data in '{file_path}' is invalid.")
         return None
     except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         return None
 
 
