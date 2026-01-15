@@ -2,19 +2,19 @@ import pathlib
 
 from pydantic import BaseModel, ValidationError
 
-from app.settings import logger
+from app.core.logging import logger
 
 # ---------------------------------------------------------
 # Define the configuration based to the JSON structure
 # ---------------------------------------------------------
 
 
-class _CronJob(BaseModel):
+class CCronJob(BaseModel):
     refresh_tickers: list[str] = []
 
 
 class Config(BaseModel):
-    cronjob: _CronJob = _CronJob(refresh_tickers=[])
+    cronjob: CCronJob = CCronJob(refresh_tickers=[])
 
 
 # ---------------------------------------------------------
@@ -30,8 +30,8 @@ def load_configuration(file_path: str) -> Config | None:
     except FileNotFoundError:
         logger.error(f"Error: The file '{file_path}' was not found.")
         return None
-    except ValidationError:
-        logger.error(f"Error: Configuration data in '{file_path}' is invalid.")
+    except ValidationError as e:
+        logger.error(f"Error: Configuration data in '{file_path}' is invalid. Details: {e}")
         return None
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")

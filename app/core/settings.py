@@ -1,8 +1,7 @@
-import logging
-from logging.handlers import TimedRotatingFileHandler
-
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.core.constants import EnvType
 
 # ---------------------------------------------------------
 # Settings
@@ -12,9 +11,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AppSettings(BaseSettings):
     # Pydantic automatically converts ENV_VAR to lowercase setting_name
     enabled_cron: bool = False
+    environment: EnvType = EnvType.DEVELOPMENT
 
     app_name: str = "TemplateBot"
-    app_version: str = "2025.12.17"
+    app_version: str = "2025.01.15"
     database_path: str = "sqlite:///data/development.db"
 
     log_file: str = "development.log"
@@ -31,6 +31,7 @@ class AppSettings(BaseSettings):
     # normalize log_level
     @field_validator("log_level")
     def validate_log_level(cls, v: str) -> str:
+        """Validate and normalize the log level."""
         if isinstance(v, str):
             v = v.strip().upper()
         if v not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
@@ -40,21 +41,3 @@ class AppSettings(BaseSettings):
 
 
 settings = AppSettings()
-
-# ---------------------------------------------------------
-# Logging
-# ---------------------------------------------------------
-
-logging_filepath = f"data/{settings.log_file.replace('.log', '')}.log"
-
-# Configure a logger that rotates daily at midnight, keeping 7 days of backups
-handler = TimedRotatingFileHandler(logging_filepath, when="midnight", interval=1, backupCount=7, encoding="utf-8")
-
-
-logging.basicConfig(
-    level=settings.log_level,  # Set the minimum logging level
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[handler],
-)
-
-logger = logging.getLogger(__name__)

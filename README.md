@@ -96,8 +96,8 @@ flyctl auth login
 flyctl launch --no-deploy  
 
 # 4. create a volume (to store sqlite database and log files)
-flyctl volumes create data --size=2
-
+flyctl volumes create data --size=1 --count=1
+ 
 # 5. then go to your dashboard and set all env variables
 
 # Notes: make sure to have `auto_stop_machines = 'off'` in fly.toml

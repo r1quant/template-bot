@@ -5,10 +5,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.config import config
-from app.database import db
-from app.lib.utils import Notifier
-from app.settings import logger, settings
-from app.tasks.refresh_ticker import refresh_ticker_by_interval
+from app.core.database.methods import db
+from app.core.logging import logger
+from app.core.settings import settings
+from app.lib.util_notifier import Notifier
+from app.tasks.runner_ticker import refresh_ticker_by_interval
 
 # ---------------------------------------------------------
 # Cronjob: 1 minute

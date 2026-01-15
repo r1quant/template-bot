@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
-from app.database import db
-from app.lib.utils import IntervalHelper, Providers
+from app.core.database.methods import db
+from app.lib.util_interval import IntervalHelper
+from app.lib.util_provider import Provider
 
 
 def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h", return_dataframe=True):
@@ -22,7 +23,7 @@ def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h", return_dataframe
     ticker_start = start.strftime("%Y-%m-%d")
 
     if provider == "yahoo":
-        ticker_data = Providers.yahoofinance(ticker_name, ticker_start, interval=ticker_interval)
+        ticker_data = Provider.yahoofinance(ticker_name, ticker_start, interval=ticker_interval)
 
     records = []
 
