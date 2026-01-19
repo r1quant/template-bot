@@ -2,7 +2,7 @@ import asyncio
 
 from fastapi import APIRouter
 
-from app.lib.util_notifier import Notifier
+from app.lib.utils.notifier import Notifier
 
 router = APIRouter()
 
@@ -14,6 +14,8 @@ router = APIRouter()
 @router.get("/telegram")
 async def send_telegram(msg: str):
     message = msg or "hello from template-bot"
+    example_code_snippet = '{"status": "success" }}'
+    message += f"\n```json\n{example_code_snippet}\n```"
     asyncio.create_task(Notifier.send_telegram_message_async(message))
     return {"message": message}
 

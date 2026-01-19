@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.core.database.methods import db
+from app.database.methods import db
 
 router = APIRouter()
 

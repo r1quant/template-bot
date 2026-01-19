@@ -1,6 +1,6 @@
 [project]
 name = "app"
-version = "0.2.0"
+version = "0.2.1"
 description = "Template bot"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -9,6 +9,7 @@ dependencies = [
     "aiohttp==3.13.3",
     "apscheduler==3.11.2",
     "fastapi[standard]==0.128.0",
+    "lnmarkets-sdk==0.0.19",
     "pydantic-settings==2.12.0",
     "sqlmodel==0.0.31",
     "yfinance==1.0.00",
@@ -19,6 +20,7 @@ dev = [
     "ipykernel==7.1.0",
     "ipywidgets==8.1.8",
     "nbformat==5.10.4",
+    "ruff>=0.14.13",
 ]
 
 [tool.ruff]

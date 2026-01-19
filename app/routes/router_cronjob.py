@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.cronjob import cron_d1, cron_h1
+from app.cronjob import cron_d1, cron_h4
 
 router = APIRouter()
 
@@ -11,8 +11,8 @@ router = APIRouter()
 
 @router.get("/cronjob/{interval}")
 async def cronjob_run(interval: str):
-    if interval == "h1":
-        await cron_h1()
+    if interval == "h4":
+        await cron_h4()
 
     if interval == "d1":
         await cron_d1()

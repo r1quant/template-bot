@@ -6,6 +6,7 @@ import aiofiles
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
+from app.core.logging import get_errors_in_log_file
 from app.core.settings import settings
 
 router = APIRouter()
@@ -38,3 +39,9 @@ async def show_logs(lines: int = 1000, prev: int = 0):
         return PlainTextResponse(content=content, headers={"Content-Disposition": "inline; filename=app.log"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading log file: {str(e)}")
+
+
+@router.get("/logs/has_error")
+async def logs_report_error():
+    has_error, error_lines = get_errors_in_log_file()
+    return {"has_error": has_error, "error_lines": error_lines}

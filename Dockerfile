@@ -1,8 +1,8 @@
 # Stage 1: Builder - Install dependencies with uv
-FROM python:3.13.11-slim AS builder
+FROM python:3.14.2-slim AS builder
 
 # Install uv from the official image
-COPY --from=ghcr.io/astral-sh/uv:0.9.18 /uv /usr/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /usr/bin/uv
 
 # Set the working directory for subsequent instructions
 WORKDIR /myproject
@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --frozen ;
   
 # Stage 2: Runtime - Copy application code and the venv
-FROM python:3.13.11-slim AS final 
+FROM python:3.14.2-slim AS final 
 
 # Set the working directory for subsequent instructions
 WORKDIR /myproject

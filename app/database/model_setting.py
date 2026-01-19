@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlmodel import Field, Session, SQLModel
 
-from .database import engine
+from app.database.database import engine
 
 # ---------------------------------------------------------
 # Model
@@ -9,7 +9,7 @@ from .database import engine
 
 
 class Setting(SQLModel, table=True):
-    __tablename__ = "setting"
+    __tablename__ = "settings"
     key: str = Field(primary_key=True, unique=True, nullable=False)
     value: str = Field(nullable=False)
 

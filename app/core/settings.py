@@ -14,7 +14,7 @@ class AppSettings(BaseSettings):
     environment: EnvType = EnvType.DEVELOPMENT
 
     app_name: str = "TemplateBot"
-    app_version: str = "2025.01.15"
+    app_version: str = "2025.01.19"
     database_path: str = "sqlite:///data/development.db"
 
     log_file: str = "development.log"
@@ -23,6 +23,8 @@ class AppSettings(BaseSettings):
     notifier_discord_webhook_url: str = ""
     notifier_telegram_token: str = ""
     notifier_telegram_chat_id: str = ""
+
+    omqs_api_key: str = ""
 
     # 'model_config' is a reserved and required name that Pydantic V2
     # uses internally to find and interpret the configuration dictionary

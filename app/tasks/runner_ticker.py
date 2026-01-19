@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from app.core.database.methods import db
-from app.lib.util_interval import IntervalHelper
-from app.lib.util_provider import Provider
+from app.database.methods import db
+from app.lib.api.yahoofinance import yahoofinance
+from app.lib.utils.interval import IntervalHelper
 
 
 def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h", return_dataframe=True):
@@ -23,7 +23,7 @@ def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h", return_dataframe
     ticker_start = start.strftime("%Y-%m-%d")
 
     if provider == "yahoo":
-        ticker_data = Provider.yahoofinance(ticker_name, ticker_start, interval=ticker_interval)
+        ticker_data = yahoofinance(ticker_name, ticker_start, interval=ticker_interval)
 
     records = []
 
@@ -33,7 +33,7 @@ def refresh_ticker_by_interval(ticker="BTC-USD", interval="1h", return_dataframe
         for _, row in ticker_data.iloc[-10:].iterrows():
             candles.append(
                 {
-                    "ticker": ticker_name,
+                    "ticker": str(ticker_name).lower(),
                     "interval": IntervalHelper.normalize(ticker_interval),
                     "date": datetime.strptime(row["date"].strftime("%Y-%m-%d %H:%M:00"), "%Y-%m-%d %H:%M:%S"),
                     "open": str(row["open"]),

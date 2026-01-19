@@ -1,13 +1,13 @@
 from datetime import datetime
 
 import pandas as pd
-from sqlalchemy import UniqueConstraint, select
+from pydantic import field_validator
+from sqlalchemy import UniqueConstraint, desc, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlmodel import Field, Session, SQLModel
 
-from app.lib.util_interval import IntervalHelper
-
-from .database import engine
+from app.database.database import engine
+from app.lib.utils.interval import IntervalHelper
 
 # ---------------------------------------------------------
 # Model
@@ -24,6 +24,21 @@ class OHLC(SQLModel, table=True):
     high: str
     low: str
     close: str
+
+    @field_validator("ticker", mode="before")
+    @classmethod
+    def force_ticker_lowercase(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.lower()
+        return v
+
+    @field_validator("interval", mode="before")
+    @classmethod
+    def force_interval_lowercase(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.lower()
+        return v
+
     __table_args__ = (UniqueConstraint("ticker", "interval", "date", name="unique_ticker_interval_date"),)
 
 
@@ -33,19 +48,20 @@ class OHLC(SQLModel, table=True):
 
 
 class ohlc_methods:
-    def get_all(ticker=None, interval=None, return_dataframe=True):
+    def get_all(ticker=None, interval=None, return_dataframe=True, limit: int = 200):
         records = []
         with Session(engine) as session:
-            if ticker and interval:
+            stmt = select(OHLC)
+
+            if ticker:
+                stmt = stmt.where(OHLC.ticker == str(ticker).lower())
+
+            if interval:
                 interval = IntervalHelper.normalize(interval)
-                stmt = select(OHLC).where(OHLC.ticker == ticker.upper()).where(OHLC.interval == interval)
-            elif interval:
-                interval = IntervalHelper.normalize(interval)
-                stmt = select(OHLC).where(OHLC.interval == interval)
-            elif ticker:
-                stmt = select(OHLC).where(OHLC.ticker == ticker.upper())
-            else:
-                stmt = select(OHLC)
+                stmt = stmt.where(OHLC.interval == str(interval).lower())
+
+            stmt = stmt.order_by(desc(OHLC.date))
+            stmt = stmt.limit(limit)
 
             records = session.scalars(stmt).all()
 
@@ -63,10 +79,8 @@ class ohlc_methods:
     def upsert(values):
         with Session(engine) as session:
             for item in values:
-                if "ticker" in item:
-                    item["ticker"] = str(item["ticker"]).upper()
-                if "interval" in item:
-                    item["interval"] = IntervalHelper.normalize(item["interval"])
+                item["ticker"] = str(item["ticker"]).lower()
+                item["interval"] = IntervalHelper.normalize(item["interval"]).lower()
 
             stmt = insert(OHLC).values(values)
             upsert_stmt = stmt.on_conflict_do_update(

@@ -1,10 +1,55 @@
 import httpx
+import requests
 
 from app.core.logging import logger
 from app.core.settings import settings
 
 
 class Notifier:
+    def base_telegram_message(msg: str):
+        if not settings.notifier_telegram_token:
+            return None, None
+
+        if settings.notifier_telegram_token and not settings.notifier_telegram_chat_id:
+            logger.warning("telegram_chat_id is empty")
+            return None, None
+
+        if not settings.notifier_telegram_chat_id:
+            return None, None
+
+        if not msg:
+            logger.warning("telegram: message is empty")
+            return None, None
+
+        url = f"https://api.telegram.org/bot{settings.notifier_telegram_token}/sendMessage"
+        payload = {"chat_id": settings.notifier_telegram_chat_id, "text": msg, "parse_mode": "Markdown"}
+
+        return url, payload
+
+    def send_telegram_message(message_text: str):
+        """
+        Sends a text message asynchronously to telegram
+        e.q: send_telegram_message("hello bot")
+        """
+
+        url, payload = Notifier.base_telegram_message(message_text)
+
+        if url is None:
+            return "failed"
+
+        try:
+            # Use requests instead of httpx.AsyncClient
+            response = requests.post(url, data=payload, timeout=10.0)
+            response.raise_for_status()
+            logger.info("telegram: message sent to chat")
+            return "ok"
+        except requests.exceptions.HTTPError as e:
+            logger.warning(f"telegram: background task failed: {e.response.status_code} - {e.response.text}")
+            return "failed"
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"telegram: background task network error: {message_text=} {e}")
+            return "failed"
+
     async def send_telegram_message_async(message_text: str):
         """
         Sends a text message asynchronously to telegram
@@ -12,22 +57,11 @@ class Notifier:
 
         e.q: asyncio.create_task(send_telegram_message_async("hello bot"))
         """
-        if not settings.notifier_telegram_token:
-            return
 
-        if settings.notifier_telegram_token and not settings.notifier_telegram_chat_id:
-            logger.warning("telegram_chat_id is empty")
-            return
+        url, payload = Notifier.base_telegram_message(message_text)
 
-        if not settings.notifier_telegram_chat_id:
-            return
-
-        if not message_text:
-            logger.warning("telegram: message is empty")
-            return
-
-        url = f"https://api.telegram.org/bot{settings.notifier_telegram_token}/sendMessage"
-        payload = {"chat_id": settings.notifier_telegram_chat_id, "text": message_text, "parse_mode": "Markdown"}
+        if url is None:
+            return "failed"
 
         async with httpx.AsyncClient() as client:
             try:
@@ -39,7 +73,10 @@ class Notifier:
                 logger.warning(f"telegram: background task failed: {e.response.status_code} - {e.response.text}")
                 return "failed"
             except httpx.RequestError as e:
-                logger.warning(f"telegram: background task network error: {e}")
+                if e.response:
+                    logger.warning(f"telegram: background task network error: {message_text=} -> {e.response.status_code} - {e.response.text}")  # fmt: off
+                else:
+                    logger.warning(f"telegram: background task network error: {message_text=} {e}")
                 return "failed"
 
     async def send_discord_message_async(message_text: str):

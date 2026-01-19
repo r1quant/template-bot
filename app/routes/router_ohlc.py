@@ -1,8 +1,8 @@
 import pandas as pd
 from fastapi import APIRouter
 
-from app.core.database.methods import db
-from app.lib.util_interval import IntervalHelper
+from app.database.methods import db
+from app.lib.utils.interval import IntervalHelper
 from app.tasks.runner_ticker import refresh_ticker_by_interval
 
 router = APIRouter()
