@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.database.methods import db
-from app.lib.strategy import StrategyOMQS
+from app.lib.strategy import StrategyOMQS, StrategyOMQSCrossPreviousStop, StrategyOMQSWithStrength
 from app.lib.utils.interval import IntervalHelper
 
 router = APIRouter()
@@ -31,7 +31,19 @@ def signals_latest(ticker: str, interval: str, provider: str, model: str, prev_n
     return {"status": "ok", "records": records}
 
 
-@router.get("/signals/strategies/omqssignal/")
-async def strategies_omqssignalchange(ticker: str, interval: str, model: str):
+@router.get("/signals/strategies/omqs/")
+async def strategies_omqs(ticker: str, interval: str, model: str):
     signals = await StrategyOMQS.getSignals(ticker=ticker, interval=interval, model=model)
+    return {"status": "ok", "signal": signals[0], "signals": [s.value for s in signals]}
+
+
+@router.get("/signals/strategies/omqscrosspreviousstop/")
+async def strategies_omqscrosspreviousstop(ticker: str, interval: str, model: str):
+    signals = await StrategyOMQSCrossPreviousStop.getSignals(ticker=ticker, interval=interval, model=model)
+    return {"status": "ok", "signal": signals[0], "signals": [s.value for s in signals]}
+
+
+@router.get("/signals/strategies/omqswithstrength/")
+async def strategies_omqswithstrength(ticker: str, interval: str, model: str):
+    signals = await StrategyOMQSWithStrength.getSignals(ticker=ticker, interval=interval, model=model)
     return {"status": "ok", "signal": signals[0], "signals": [s.value for s in signals]}
