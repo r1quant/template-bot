@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.database.methods import db
-from app.lib.strategy import StrategyOMQSSignal
+from app.lib.strategy import StrategyOMQS
 from app.lib.utils.interval import IntervalHelper
 
 router = APIRouter()
@@ -33,5 +33,5 @@ def signals_latest(ticker: str, interval: str, provider: str, model: str, prev_n
 
 @router.get("/signals/strategies/omqssignal/")
 async def strategies_omqssignalchange(ticker: str, interval: str, model: str):
-    signals = await StrategyOMQSSignal.getSignals(ticker=ticker, interval=interval, model=model)
-    return {"status": "ok", "signal": signals[0], "signals": signals}
+    signals = await StrategyOMQS.getSignals(ticker=ticker, interval=interval, model=model)
+    return {"status": "ok", "signal": signals[0], "signals": [s.value for s in signals]}
