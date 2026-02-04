@@ -63,7 +63,7 @@ def cron_initialize():
     if settings.enabled_cron:
         logger.info(f"cronjob is enabled at {datetime.now(UTC)}")
 
-        scheduler.add_job(cron_h4, CronTrigger(day="*", hour="*/1", minute="0", second="20", timezone=utc_plus_1))
+        scheduler.add_job(cron_h4, CronTrigger(day="*", hour="*/4", minute="0", second="20", timezone=utc_plus_1))
         scheduler.add_job(cron_d1, CronTrigger(day="*", hour="0", minute="1", timezone="UTC"))
 
         scheduler.start()
