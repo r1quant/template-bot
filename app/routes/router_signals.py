@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.database.methods import db
-from app.lib.strategy import StrategyOMQS, StrategyOMQSCrossPreviousStop, StrategyOMQSWithStrength
+from app.lib.strategy import StrategyOMQS, StrategyOMQSCrossPreviousStop, StrategyOMQSWithConfidence
 from app.lib.utils.interval import IntervalHelper
 
 router = APIRouter()
@@ -43,7 +43,7 @@ async def strategies_omqscrosspreviousstop(ticker: str, interval: str, model: st
     return {"status": "ok", "signal": signals[0], "signals": [s.value for s in signals]}
 
 
-@router.get("/signals/strategies/omqswithstrength/")
-async def strategies_omqswithstrength(ticker: str, interval: str, model: str):
-    signals = await StrategyOMQSWithStrength.getSignals(ticker=ticker, interval=interval, model=model)
+@router.get("/signals/strategies/omqswithconfidence/")
+async def strategies_omqswithconfidence(ticker: str = "BTCUSDT", interval: str = "H4", model: str = "crypto"):
+    signals = await StrategyOMQSWithConfidence.getSignals(ticker=ticker, interval=interval, model=model)
     return {"status": "ok", "signal": signals[0], "signals": [s.value for s in signals]}
